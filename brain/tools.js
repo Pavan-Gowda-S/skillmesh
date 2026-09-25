@@ -117,6 +117,10 @@ const tools = [
               description: "Key-value pairs containing the names and values of custom fields."
             }
           }
+        },
+        reasoning: {
+          type: "string",
+          description: "Why this update is being proposed."
         }
       },
       required: ["ticketId", "updates"]

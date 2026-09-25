@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SkillMesh — AI Support Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text">
+        <div class="name">SKILLMESH</div>
+        <div class="sub">AI SUPPORT INTELLIGENCE</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-pill"><span class="status-dot"></span> AI SYSTEM ONLINE</div>
+      <div class="workspace">WORKSPACE <b>IT Operations — Tier 1</b></div>
+      <div class="agent-chip">
+        <div class="agent-avatar" id="headerAgentAvatar">PS</div>
+        <div class="who"><span id="headerAgentName">Priya Sharma</span><small id="headerAgentRole">SUPPORT AGENT</small></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOCK TICKET PICKER STRIP -->
+  <div class="ticket-picker-strip">
+    <div class="picker-label"><span class="tick"></span>SELECT MOCK TICKET:</div>
+    <div class="picker-options" id="ticketPickerOptions">
+      <!-- Generated dynamically from mock data -->
+    </div>
+  </div>
+
+  <!-- MAIN GRID: ACTIVE TICKET & AGENT PROFICIENCY -->
+  <div class="grid-main">
+    <div class="card ticket-card">
+      <div class="ticket-top">
+        <div>
+          <div class="ticket-id" id="ticketIdDisplay">TICKET #90</div>
+          <div class="ticket-title" id="ticketTitleDisplay">Laptop is extremely slow after startup</div>
+        </div>
+      </div>
+      <div class="tag-row" id="ticketTagsDisplay">
+        <span class="tag status-open" id="tagStatus">STATUS · OPEN</span>
+        <span class="tag priority-low" id="tagPriority">PRIORITY · LOW</span>
+        <span class="tag skill" id="tagSkill">SKILL · SOFTWARE</span>
+      </div>
+      <div class="requester">Requester — <b id="ticketRequesterDisplay">Pavan Gowda S</b></div>
+      <div class="ticket-desc" id="ticketDescDisplay">"My laptop takes almost 10 minutes to become usable after starting. Applications also take a long time to open. This started happening this week."</div>
+      <button class="btn btn-primary" id="btnInvestigate">INVESTIGATE TICKET <span class="arrow">→</span></button>
+    </div>
+
+    <div class="card prof-card">
+      <div class="eyebrow"><span class="tick"></span>AGENT PROFICIENCY</div>
+      <div class="prof-skill" id="profSkillDisplay">SOFTWARE</div>
+      <div class="radial-wrap">
+        <svg viewBox="0 0 160 160">
+          <defs>
+            <linearGradient id="profGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff6b5e" id="gradStop1"/>
+              <stop offset="100%" stop-color="#c9679e" id="gradStop2"/>
+            </linearGradient>
+          </defs>
+          <circle class="radial-track" cx="80" cy="80" r="70"/>
+          <circle class="radial-fill" id="radialCircle" cx="80" cy="80" r="70"/>
+        </svg>
+        <div class="radial-center">
+          <div class="radial-pct" id="radialPctDisplay">35%</div>
+          <div class="radial-label" id="radialLabelDisplay">BEGINNER</div>
+        </div>
+      </div>
+      <div class="prof-name" id="profNameDisplay">Priya Sharma</div>
+      <div class="prof-note" id="profNoteDisplay">GUIDANCE LEVEL: DETAILED<br>STEP-BY-STEP WALKTHROUGHS ENABLED</div>
+    </div>
+  </div>
+
+  <!-- SECOND GRID: INVESTIGATION TRACE & RECOMMENDATION/APPROVAL -->
+  <div class="grid-second">
+    <div class="card">
+      <div class="eyebrow"><span class="tick"></span>AI INVESTIGATION TRACE</div>
+      <div class="trace-list" id="traceListContainer">
+        <!-- Rendered from mock trace data -->
+      </div>
+    </div>
+
+    <div>
+      <!-- RECOMMENDATION -->
+      <div class="card rec-card">
+        <div class="eyebrow"><span class="tick"></span>AI RECOMMENDATION</div>
+        <div class="rec-title" id="recTitleDisplay">Raise priority to Medium</div>
+        <div class="rec-body" id="recBodyDisplay">The issue significantly impacts the user's productivity and appears related to another unresolved performance ticket.</div>
+        <div class="rec-footer">
+          <div class="confidence">CONFIDENCE <b id="recConfidenceDisplay">86%</b></div>
+          <button class="btn btn-ghost" id="btnReviewRec">REVIEW PROPOSAL</button>
+        </div>
+      </div>
+
+      <!-- PENDING APPROVAL -->
+      <div class="card approval-card" id="approvalCard">
+        <div class="eyebrow"><span class="tick"></span><span id="approvalEyebrow">PENDING APPROVAL — TICKET #90</span></div>
+        <div class="priority-shift">
+          <span class="from" id="priorityFromDisplay">LOW</span> → <span class="to" id="priorityToDisplay">MEDIUM</span>
+        </div>
+        <div class="proposed-by">Proposed by <b id="proposedByDisplay">AI Investigation Engine</b></div>
+        <div class="approval-status" id="approvalStatusDisplay">
+          <span class="dotp"></span><span id="approvalStatusText">WAITING FOR HUMAN APPROVAL</span>
+        </div>
+        <div class="approval-actions" style="margin-top:18px;">
+          <button class="btn btn-sm btn-review" id="btnReviewProposal">REVIEW</button>
+          <button class="btn btn-sm btn-approve" id="btnApproveProposal">APPROVE</button>
+          <button class="btn btn-sm btn-reject" id="btnRejectProposal">REJECT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKILL GAPS DETECTED -->
+  <div class="card gaps-card">
+    <div class="gaps-head">
+      <h2>Skill Gaps Detected</h2>
+      <div class="eyebrow">ADMIN VIEW</div>
+    </div>
+    <div id="skillGapsList">
+      <!-- Rendered from mock gaps data -->
+    </div>
+  </div>
+
+  <!-- METRICS STRIP -->
+  <div class="metrics-strip">
+    <div class="card metric-card">
+      <div class="metric-label">TICKETS ANALYZED</div>
+      <div class="metric-value" id="metricTicketsAnalyzed">128</div>
+    </div>
+    <div class="card metric-card">
+      <div class="metric-label">AI INVESTIGATIONS</div>
+      <div class="metric-value" id="metricInvestigations">94</div>
+    </div>
+    <div class="card metric-card">
+      <div class="metric-label">PENDING APPROVALS</div>
+      <div class="metric-value" id="metricPendingApprovals">7</div>
+    </div>
+    <div class="card metric-card">
+      <div class="metric-label">SKILL GAPS</div>
+      <div class="metric-value" id="metricSkillGaps">12</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: PROPOSAL REVIEW -->
+<div class="modal-overlay" id="proposalModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalProposalTitle">Proposal Review — Ticket #90</h3>
+      <button class="modal-close" id="modalProposalClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-kv">
+        <div class="k">Proposal ID:</div>
+        <div class="v" id="modalProposalId">proposal-179037-90</div>
+        <div class="k">Target Ticket:</div>
+        <div class="v" id="modalProposalTicket">#90</div>
+        <div class="k">Proposed Action:</div>
+        <div class="v" id="modalProposalAction">Update Priority: Low → Medium</div>
+        <div class="k">Originator:</div>
+        <div class="v">AI Investigation Engine (Autonomous)</div>
+        <div class="k">Governance Gate:</div>
+        <div class="v" style="color:var(--teal)">Human Authorization Required</div>
+      </div>
+      <div style="margin-top:16px;">
+        <div style="font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-bottom:6px;">TECHNICAL REASONING:</div>
+        <div id="modalProposalReasoning" style="font-size:13px; line-height:1.6; color:#c9c5e0; background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid var(--border);">
+          Ticket #90 reports a severe startup slowdown causing daily productivity loss. Combined with open ticket #81 from the same user, this indicates an escalating endpoint issue warranting Medium priority.
+        </div>
+      </div>
+      <div class="modal-note">
+        <b>Governance Safe Guard:</b> In accordance with Phase 4 governance rules, no write has been executed to Freshservice. The change will only apply if approved by a human agent.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sm btn-ghost" id="modalCloseBtn">CLOSE</button>
+      <button class="btn btn-sm btn-approve" id="modalApproveBtn">APPROVE PROPOSAL</button>
+      <button class="btn btn-sm btn-reject" id="modalRejectBtn">REJECT PROPOSAL</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SKILL GAP REVIEW -->
+<div class="modal-overlay" id="gapModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalGapTitle">Skill Gap Details</h3>
+      <button class="modal-close" id="modalGapClose">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div id="modalGapDescription" style="margin-bottom:14px; font-size:13.5px; line-height:1.6;"></div>
+      <div style="font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-bottom:8px;">UNTAGGED TICKETS DETECTED:</div>
+      <div id="modalGapTickets" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
+      <div class="modal-note">
+        <b>Recommendation:</b> Auto-tag these incoming tickets to activate personalized triage workflows and assign targeted training modules to Tier 1 support agents.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-sm btn-ghost" id="modalGapCloseBtn">CLOSE</button>
+      <button class="btn btn-sm btn-primary" id="modalGapApplyBtn">APPLY RUNBOOK</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- LOAD SCRIPTS -->
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

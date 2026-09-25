@@ -7,8 +7,14 @@ const {
   searchTickets,
   lookupCustomer,
   searchKnowledgeBase,
-  updateTicket
+  proposeUpdate,
+  executeUpdate,
+  getPendingProposals,
+  getProposal,
+  callTool
 } = require("../mcp/freshworks.js");
+const { getTicketSkill, predictTicketSkill } = require("./skill.js");
+const { getProficiency } = require("./proficiency.js");
 
 const SYSTEM_PROMPT = `You are a Freshservice investigation assistant.
 
@@ -43,6 +49,51 @@ function formatSafeResult(result) {
 }
 
 /**
+ * Resolves the skill and agent proficiency context for a ticket (Phase 3E).
+ *
+ * @param {number} ticketId - Freshservice ticket ID
+ * @param {object} [options] - Options containing optional agentName override
+ * @returns {Promise<{ ticketId: number, skill: string, skillSource: string, agent: string, proficiency: number, level: string }>}
+ */
+async function resolvePersonalization(ticketId, options = {}) {
+  // 1. Existing category check (Phase 3A)
+  const skillRes = await getTicketSkill(ticketId);
+  let skill = skillRes?.skill;
+  let skillSource = skillRes?.source || "existing_category";
+
+  // 2. If category is missing, predict skill (Phase 3B)
+  if (!skill) {
+    const ticketRes = await callTool("fetchTicket", { ticket_id: ticketId });
+    let ticket = ticketRes?.data?.ticket || ticketRes?.ticket;
+    if (!ticket && ticketRes?.content?.[0]?.text) {
+      try {
+        const parsed = JSON.parse(ticketRes.content[0].text);
+        ticket = parsed?.data?.ticket || parsed?.ticket;
+      } catch (_) {}
+    }
+    const subject = ticket?.subject || "";
+    const description = ticket?.description_text || ticket?.description || "";
+    skill = await predictTicketSkill(subject, description);
+    skillSource = "predicted";
+  }
+
+  // 3. Identify assigned agent (fallback to Priya Sharma for demo)
+  const agentName = options.agentName || options.agent || "Priya Sharma";
+
+  // 4. Calculate proficiency score and level (Phase 3D)
+  const prof = getProficiency(agentName, skill);
+
+  return {
+    ticketId,
+    skill,
+    skillSource,
+    agent: agentName,
+    proficiency: prof.proficiency,
+    level: prof.level
+  };
+}
+
+/**
  * Execute a local function corresponding to the requested Claude tool.
  */
 async function executeTool(name, input = {}) {
@@ -69,10 +120,11 @@ async function executeTool(name, input = {}) {
     case "updateTicket": {
       const ticketId = input.ticketId ?? input.ticket_id;
       const updates = input.updates || {};
+      const reasoning = input.reasoning;
       if (ticketId === undefined || ticketId === null) {
         throw new Error("Missing required argument: ticketId");
       }
-      return await updateTicket(ticketId, updates);
+      return proposeUpdate(ticketId, updates, reasoning);
     }
 
     default:
@@ -81,10 +133,10 @@ async function executeTool(name, input = {}) {
 }
 
 /**
- * Runs the Claude tool-calling investigation loop with real-time execution trace.
+ * Runs the Claude tool-calling investigation loop with personalized proficiency context.
  *
  * @param {string} userMessage - The initial prompt / instruction.
- * @param {object} [options] - Optional configurations (model, maxIterations).
+ * @param {object} [options] - Optional configurations (model, maxIterations, agentName, ticketId).
  * @returns {Promise<string>} - The final response text from Claude.
  */
 async function runInvestigation(userMessage, options = {}) {
@@ -97,6 +149,32 @@ async function runInvestigation(userMessage, options = {}) {
   const maxIterations = options.maxIterations || MAX_ITERATIONS;
 
   const client = new Anthropic({ apiKey });
+
+  const ticketMatch = userMessage.match(/ticket\s*#?(\d+)/i);
+  const ticketId = options.ticketId || (ticketMatch ? parseInt(ticketMatch[1], 10) : null);
+
+  let systemPrompt = SYSTEM_PROMPT;
+
+  if (ticketId) {
+    const context = await resolvePersonalization(ticketId, options);
+
+    console.log("=== PERSONALIZATION CONTEXT ===");
+    console.log(`Ticket: ${context.ticketId}`);
+    console.log(`Skill: ${context.skill}`);
+    console.log(`Agent: ${context.agent}`);
+    console.log(`Proficiency: ${context.proficiency}`);
+    console.log(`Level: ${context.level}`);
+    console.log("===============================\n");
+
+    const personalizationInstruction = `This ticket requires ${context.skill}.
+The assigned agent is ${context.level} at this skill.
+
+If Beginner, run the full investigation with detailed guidance.
+If Intermediate, investigate normally but keep the guidance focused.
+If Expert, give a short, direct recommendation only.`;
+
+    systemPrompt = `${SYSTEM_PROMPT}\n\n${personalizationInstruction}`;
+  }
 
   console.log("=== INVESTIGATION START ===");
   console.log(`Prompt: "${userMessage}"`);
@@ -116,7 +194,7 @@ async function runInvestigation(userMessage, options = {}) {
     const response = await client.messages.create({
       model,
       max_tokens: 4096,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       tools,
       messages
     });
@@ -193,7 +271,12 @@ async function runInvestigation(userMessage, options = {}) {
 
 module.exports = {
   runInvestigation,
+  resolvePersonalization,
   executeTool,
+  proposeUpdate,
+  executeUpdate,
+  getPendingProposals,
+  getProposal,
   SYSTEM_PROMPT,
   MAX_ITERATIONS
 };
