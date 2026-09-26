@@ -40,8 +40,39 @@ async function runPhase6BTest() {
     const countBefore = proposalsBefore.length;
     console.log(`Initial pending proposals count: ${countBefore}`);
 
-    const t90 = await callTool("fetchTicket", { ticket_id: 90 }, { skipGovernanceLog: true });
-    const priorityBefore = (t90.data?.ticket || t90.ticket).priority;
+function extractTicket(res) {
+  if (!res) return {};
+  if (res.data?.ticket) return res.data.ticket;
+  if (res.ticket) return res.ticket;
+  if (res.content?.[0]?.text) {
+    try {
+      const parsed = JSON.parse(res.content[0].text);
+      return parsed.data?.ticket || parsed.ticket || parsed;
+    } catch (e) {}
+  }
+  return res;
+}
+
+    async function getTicket90Priority() {
+      try {
+        const t90 = await callTool("fetchTicket", { ticket_id: 90 }, { skipGovernanceLog: true });
+        const p = extractTicket(t90)?.priority;
+        if (p !== undefined) return p;
+      } catch (e) {}
+
+      const apiKey = process.env.FRESHSERVICE_API_KEY;
+      const domain = process.env.FRESHSERVICE_DOMAIN || process.env.FRESHSERVICE_URL;
+      const res = await fetch(`${domain}/api/v2/tickets/90`, {
+        headers: {
+          Authorization: "Basic " + Buffer.from(apiKey + ":X").toString("base64"),
+          "Content-Type": "application/json"
+        }
+      });
+      const data = await res.json();
+      return data.ticket?.priority;
+    }
+
+    const priorityBefore = await getTicket90Priority();
     console.log(`Ticket #90 baseline priority: ${priorityBefore}`);
     if (priorityBefore !== 1) {
       throw new Error(`Baseline failed: Ticket #90 priority is ${priorityBefore}, expected 1.`);
@@ -102,8 +133,7 @@ async function runPhase6BTest() {
     const passNoProposal = countAfter === countBefore;
     console.log(`No proposal created:  ${passNoProposal ? "PASS" : "FAIL"}`);
 
-    const t90After = await callTool("fetchTicket", { ticket_id: 90 }, { skipGovernanceLog: true });
-    const priorityAfter = (t90After.data?.ticket || t90After.ticket).priority;
+    const priorityAfter = await getTicket90Priority();
     console.log(`Ticket #90 priority after webhook: ${priorityAfter} (Expected: 1)`);
     const passNoFreshserviceWrite = priorityAfter === 1;
     console.log(`No Freshservice write:${passNoFreshserviceWrite ? "PASS" : "FAIL"}`);
