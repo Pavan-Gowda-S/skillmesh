@@ -132,12 +132,32 @@ async function executeTool(name, input = {}) {
   }
 }
 
+function summarizeResult(toolName, result) {
+  if (!result) return "Completed";
+  if (toolName === "searchTickets") {
+    const count = result.results?.length ?? (Array.isArray(result) ? result.length : 0);
+    return count > 0 ? `Retrieved ${count} recent tickets from Freshservice` : "Retrieved tickets successfully";
+  }
+  if (toolName === "lookupCustomer") {
+    return result.name ? `Requester: ${result.name} (ID: ${result.id || "found"})` : "Requester details retrieved";
+  }
+  if (toolName === "searchKnowledgeBase") {
+    return "Solution categories queried";
+  }
+  if (toolName === "updateTicket") {
+    return result.proposalId
+      ? `Proposal ${result.proposalId} created: Priority → ${result.updates?.priority || "updated"}`
+      : "Update proposal created";
+  }
+  return "Completed successfully";
+}
+
 /**
  * Runs the Claude tool-calling investigation loop with personalized proficiency context.
  *
  * @param {string} userMessage - The initial prompt / instruction.
- * @param {object} [options] - Optional configurations (model, maxIterations, agentName, ticketId).
- * @returns {Promise<string>} - The final response text from Claude.
+ * @param {object} [options] - Optional configurations (model, maxIterations, agentName, ticketId, returnStructuredTrace).
+ * @returns {Promise<string|object>} - The final response text or structured trace from Claude.
  */
 async function runInvestigation(userMessage, options = {}) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -153,10 +173,35 @@ async function runInvestigation(userMessage, options = {}) {
   const ticketMatch = userMessage.match(/ticket\s*#?(\d+)/i);
   const ticketId = options.ticketId || (ticketMatch ? parseInt(ticketMatch[1], 10) : null);
 
+  const structuredSteps = [];
+  let context = null;
   let systemPrompt = SYSTEM_PROMPT;
 
   if (ticketId) {
-    const context = await resolvePersonalization(ticketId, options);
+    context = await resolvePersonalization(ticketId, options);
+
+    structuredSteps.push({
+      type: "init",
+      title: `Ticket #${context.ticketId} received`,
+      tag: "MCP",
+      status: "completed"
+    });
+
+    structuredSteps.push({
+      type: "skill",
+      title: `Skill identified — ${context.skill}`,
+      tag: "AI ANALYSIS",
+      status: "completed",
+      detail: `Category source: ${context.skillSource}`
+    });
+
+    structuredSteps.push({
+      type: "proficiency",
+      title: `Agent proficiency evaluated (${context.level}: ${context.proficiency}%)`,
+      tag: "AI ANALYSIS",
+      status: "completed",
+      detail: `Assigned agent: ${context.agent}`
+    });
 
     console.log("=== PERSONALIZATION CONTEXT ===");
     console.log(`Ticket: ${context.ticketId}`);
@@ -206,9 +251,25 @@ If Expert, give a short, direct recommendation only.`;
       const textBlocks = response.content.filter(b => b.type === "text");
       const finalText = textBlocks.map(b => b.text).join("\n").trim();
 
+      structuredSteps.push({
+        type: "final_response",
+        title: "Recommendation generated",
+        tag: "AI ANALYSIS",
+        status: "completed"
+      });
+
       console.log("\n--- FINAL CLAUDE RESPONSE ---");
       console.log(finalText);
       console.log("\n=== INVESTIGATION COMPLETE ===");
+
+      if (options.returnStructuredTrace) {
+        return {
+          ticketId,
+          finalResponse: finalText,
+          personalization: context,
+          steps: structuredSteps
+        };
+      }
 
       return finalText;
     }
@@ -247,6 +308,41 @@ If Expert, give a short, direct recommendation only.`;
         console.log(err.message);
       }
 
+      const safeRes = formatSafeResult(result);
+
+      if (block.name === "updateTicket") {
+        structuredSteps.push({
+          type: "proposal",
+          tool: block.name,
+          title: `Priority update proposed (${block.input?.updates?.priority ? "Priority " + block.input.updates.priority : "Pending"})`,
+          tag: "PROPOSAL",
+          input: block.input || {},
+          status: isError ? "error" : "completed",
+          summary: summarizeResult(block.name, safeRes),
+          result: safeRes
+        });
+        if (!isError && safeRes?.proposalId) {
+          structuredSteps.push({
+            type: "pending_approval",
+            title: "Waiting for human approval",
+            tag: "PENDING",
+            status: "pending",
+            proposalId: safeRes.proposalId
+          });
+        }
+      } else {
+        structuredSteps.push({
+          type: "tool_call",
+          tool: block.name,
+          title: block.name === "searchTickets" ? "Ticket history retrieved" : (block.name === "lookupCustomer" ? "Requester context retrieved" : `Tool: ${block.name}`),
+          tag: block.name === "lookupCustomer" || block.name === "searchTickets" ? "READ" : "MCP",
+          input: block.input || {},
+          status: isError ? "error" : "completed",
+          summary: summarizeResult(block.name, safeRes),
+          result: safeRes
+        });
+      }
+
       toolResultBlocks.push({
         type: "tool_result",
         tool_use_id: block.id,
@@ -266,6 +362,16 @@ If Expert, give a short, direct recommendation only.`;
   console.log("\n--- FINAL CLAUDE RESPONSE ---");
   console.log(limitMessage);
   console.log("\n=== INVESTIGATION COMPLETE ===");
+
+  if (options.returnStructuredTrace) {
+    return {
+      ticketId,
+      finalResponse: limitMessage,
+      personalization: context,
+      steps: structuredSteps
+    };
+  }
+
   return limitMessage;
 }
 

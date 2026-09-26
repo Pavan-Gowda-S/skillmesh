@@ -59,6 +59,22 @@ body::before {
   mask-image: radial-gradient(ellipse 80% 60% at 50% 20%, black 30%, transparent 80%);
 }
 
+/* Custom sleek scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(10, 10, 16, 0.7);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(45, 216, 196, 0.4);
+}
+
 .wrap {
   position: relative;
   z-index: 1;
@@ -547,6 +563,53 @@ header {
   margin-top: 4px;
 }
 
+/* ---------- PROFICIENCY BADGE (PHASE 5D) ---------- */
+.prof-badge {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 6px 14px;
+  border-radius: 20px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.prof-badge.expert {
+  background: rgba(45, 216, 196, 0.12);
+  border-color: rgba(45, 216, 196, 0.4);
+  color: var(--teal);
+  box-shadow: 0 0 14px rgba(45, 216, 196, 0.2);
+}
+
+.prof-badge.intermediate {
+  background: rgba(201, 103, 158, 0.12);
+  border-color: rgba(201, 103, 158, 0.4);
+  color: var(--magenta);
+  box-shadow: 0 0 14px rgba(201, 103, 158, 0.2);
+}
+
+.prof-badge.beginner {
+  background: rgba(255, 107, 94, 0.12);
+  border-color: rgba(255, 107, 94, 0.4);
+  color: var(--coral);
+  box-shadow: 0 0 14px rgba(255, 107, 94, 0.2);
+}
+
+.prof-badge.unavailable {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--border);
+  color: var(--text-faint);
+}
+
 .prof-note {
   font-family: var(--mono);
   font-size: 10px;
@@ -617,6 +680,83 @@ header {
   padding: 2px 7px;
   border-radius: 5px;
   margin-left: 9px;
+  transition: all 0.25s ease;
+}
+
+.trace-body .t-tag.tag-mcp {
+  color: var(--magenta);
+  border-color: rgba(201, 103, 158, 0.4);
+  background: rgba(201, 103, 158, 0.1);
+}
+
+.trace-body .t-tag.tag-read {
+  color: var(--teal);
+  border-color: rgba(45, 216, 196, 0.4);
+  background: rgba(45, 216, 196, 0.1);
+}
+
+.trace-body .t-tag.tag-ai-analysis {
+  color: #b19ffb;
+  border-color: rgba(177, 159, 251, 0.4);
+  background: rgba(177, 159, 251, 0.1);
+}
+
+.trace-body .t-tag.tag-proposal {
+  color: #f5c542;
+  border-color: rgba(245, 197, 66, 0.4);
+  background: rgba(245, 197, 66, 0.1);
+}
+
+.trace-body .t-tag.tag-pending {
+  color: var(--coral);
+  border-color: rgba(255, 107, 94, 0.4);
+  background: rgba(255, 107, 94, 0.1);
+}
+
+.trace-body .t-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  line-height: 1.45;
+}
+
+.trace-details-toggle {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--teal);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 2px 0;
+  margin-top: 4px;
+  display: inline-block;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.trace-details-toggle:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.trace-raw-details {
+  display: none;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #c9c5e0;
+  max-height: 160px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.trace-raw-details.open {
+  display: block;
 }
 
 /* ---------- RECOMMENDATION ---------- */
@@ -750,6 +890,143 @@ header {
   font-weight: 500;
 }
 
+/* ---------- REASONING & GOVERNANCE LIFECYCLE (PHASE 5E) ---------- */
+.approval-reasoning-wrap {
+  margin: 12px 0 16px;
+}
+
+.reasoning-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  color: var(--teal);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.reasoning-label::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 6px var(--teal);
+}
+
+.approval-reasoning {
+  font-size: 11.5px;
+  line-height: 1.48;
+  color: #c9c5e0;
+  background: rgba(255, 255, 255, 0.025);
+  border-left: 2px solid var(--border-teal);
+  padding: 8px 12px;
+  border-radius: 0 8px 8px 0;
+  font-style: normal;
+  max-height: 110px;
+  overflow-y: auto;
+}
+
+.governance-chain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 16px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  overflow-x: auto;
+}
+
+.gov-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 5px;
+  color: var(--text-faint);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.gov-step small {
+  opacity: 0.7;
+  font-size: 8.5px;
+}
+
+.gov-step.active-proposed {
+  color: #f5c542;
+  border-color: rgba(245, 197, 66, 0.35);
+  background: rgba(245, 197, 66, 0.08);
+}
+
+.gov-step.active-approved {
+  color: var(--teal);
+  border-color: rgba(45, 216, 196, 0.35);
+  background: rgba(45, 216, 196, 0.08);
+}
+
+.gov-step.active-executed {
+  color: var(--teal);
+  border-color: var(--border-teal);
+  background: var(--teal-soft);
+  box-shadow: 0 0 10px rgba(45, 216, 196, 0.25);
+  font-weight: 600;
+}
+
+.gov-step.active-rejected {
+  color: var(--coral);
+  border-color: rgba(255, 107, 94, 0.35);
+  background: rgba(255, 107, 94, 0.08);
+}
+
+.gov-arrow {
+  color: var(--text-faint);
+  font-size: 11px;
+}
+
+.approval-outcome-list {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.approval-card.is-approved .approval-outcome-list {
+  background: rgba(45, 216, 196, 0.08);
+  border: 1px solid rgba(45, 216, 196, 0.25);
+  color: var(--teal);
+}
+
+.approval-card.is-rejected .approval-outcome-list {
+  background: rgba(255, 107, 94, 0.08);
+  border: 1px solid rgba(255, 107, 94, 0.25);
+  color: var(--coral);
+}
+
+.outcome-item.check {
+  color: var(--teal);
+}
+
+.outcome-item.cross {
+  color: var(--coral);
+  font-weight: 600;
+}
+
+.outcome-item.note {
+  color: var(--text-dim);
+}
+
 .approval-actions {
   display: flex;
   gap: 10px;
@@ -766,32 +1043,64 @@ header {
   background: rgba(45, 216, 196, 0.14);
   border: 1px solid var(--border-teal);
   color: var(--teal);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.btn-approve:hover {
+.btn-approve:hover:not(:disabled) {
   background: var(--teal-soft);
-  box-shadow: 0 0 18px rgba(45, 216, 196, 0.2);
+  box-shadow: 0 0 18px rgba(45, 216, 196, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-approve:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-reject {
   background: rgba(255, 107, 94, 0.1);
   border: 1px solid rgba(255, 107, 94, 0.3);
   color: var(--coral);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.btn-reject:hover {
-  background: rgba(255, 107, 94, 0.16);
+.btn-reject:hover:not(:disabled) {
+  background: rgba(255, 107, 94, 0.18);
+  box-shadow: 0 0 16px rgba(255, 107, 94, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-reject:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-review {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.btn-review:hover {
-  border-color: rgba(255, 255, 255, 0.25);
+.btn-review:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.28);
   color: var(--text);
+  transform: translateY(-1px);
+}
+
+.btn-review:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-approve:disabled,
+.btn-reject:disabled,
+.btn-review:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 /* ---------- SKILL GAPS ---------- */

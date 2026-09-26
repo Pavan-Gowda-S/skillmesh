@@ -24,8 +24,8 @@
       <div class="status-pill"><span class="status-dot"></span> AI SYSTEM ONLINE</div>
       <div class="workspace">WORKSPACE <b>IT Operations — Tier 1</b></div>
       <div class="agent-chip">
-        <div class="agent-avatar" id="headerAgentAvatar">PS</div>
-        <div class="who"><span id="headerAgentName">Priya Sharma</span><small id="headerAgentRole">SUPPORT AGENT</small></div>
+        <div class="agent-avatar" id="headerAgentAvatar">--</div>
+        <div class="who"><span id="headerAgentName">Awaiting Ticket</span><small id="headerAgentRole">SUPPORT AGENT</small></div>
       </div>
     </div>
   </header>
@@ -50,7 +50,7 @@
       <div class="tag-row" id="ticketTagsDisplay">
         <span class="tag status-open" id="tagStatus">STATUS · OPEN</span>
         <span class="tag priority-low" id="tagPriority">PRIORITY · LOW</span>
-        <span class="tag skill" id="tagSkill">SKILL · SOFTWARE</span>
+        <span class="tag skill" id="tagSkill">SKILL · AWAITING</span>
       </div>
       <div class="requester">Requester — <b id="ticketRequesterDisplay">Pavan Gowda S</b></div>
       <div class="ticket-desc" id="ticketDescDisplay">"My laptop takes almost 10 minutes to become usable after starting. Applications also take a long time to open. This started happening this week."</div>
@@ -59,25 +59,26 @@
 
     <div class="card prof-card">
       <div class="eyebrow"><span class="tick"></span>AGENT PROFICIENCY</div>
-      <div class="prof-skill" id="profSkillDisplay">SOFTWARE</div>
+      <div class="prof-skill" id="profSkillDisplay">—</div>
       <div class="radial-wrap">
         <svg viewBox="0 0 160 160">
           <defs>
             <linearGradient id="profGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#ff6b5e" id="gradStop1"/>
-              <stop offset="100%" stop-color="#c9679e" id="gradStop2"/>
+              <stop offset="0%" stop-color="#2dd8c4" id="gradStop1"/>
+              <stop offset="100%" stop-color="#17a693" id="gradStop2"/>
             </linearGradient>
           </defs>
           <circle class="radial-track" cx="80" cy="80" r="70"/>
-          <circle class="radial-fill" id="radialCircle" cx="80" cy="80" r="70"/>
+          <circle class="radial-fill" id="radialCircle" cx="80" cy="80" r="70" style="stroke-dashoffset: 440;"/>
         </svg>
         <div class="radial-center">
-          <div class="radial-pct" id="radialPctDisplay">35%</div>
-          <div class="radial-label" id="radialLabelDisplay">BEGINNER</div>
+          <div class="radial-pct" id="radialPctDisplay">—</div>
+          <div class="radial-label" id="radialLabelDisplay">UNRATED</div>
         </div>
       </div>
-      <div class="prof-name" id="profNameDisplay">Priya Sharma</div>
-      <div class="prof-note" id="profNoteDisplay">GUIDANCE LEVEL: DETAILED<br>STEP-BY-STEP WALKTHROUGHS ENABLED</div>
+      <div class="prof-name" id="profNameDisplay">Awaiting Investigation</div>
+      <div class="prof-badge unavailable" id="profBadgeDisplay">Proficiency data unavailable</div>
+      <div class="prof-note" id="profNoteDisplay">Click "INVESTIGATE TICKET →" to evaluate agent proficiency and skill alignment</div>
     </div>
   </div>
 
@@ -104,15 +105,35 @@
 
       <!-- PENDING APPROVAL -->
       <div class="card approval-card" id="approvalCard">
-        <div class="eyebrow"><span class="tick"></span><span id="approvalEyebrow">PENDING APPROVAL — TICKET #90</span></div>
+        <div class="eyebrow"><span class="tick"></span><span id="approvalEyebrow">GOVERNANCE GATE — PENDING APPROVAL</span></div>
         <div class="priority-shift">
-          <span class="from" id="priorityFromDisplay">LOW</span> → <span class="to" id="priorityToDisplay">MEDIUM</span>
+          <span class="from" id="priorityFromDisplay">LOW</span> → <span class="to" id="priorityToDisplay">—</span>
         </div>
-        <div class="proposed-by">Proposed by <b id="proposedByDisplay">AI Investigation Engine</b></div>
+        <div class="proposed-by">Proposed by <b id="proposedByDisplay">Waiting for investigation</b></div>
+
+        <!-- REASONING (PHASE 5E) -->
+        <div class="approval-reasoning-wrap" id="approvalReasoningWrap" style="display:none;">
+          <div class="reasoning-label">CLAUDE REASONING</div>
+          <div class="approval-reasoning" id="approvalReasoningDisplay"></div>
+        </div>
+
+        <!-- GOVERNANCE LIFECYCLE CHAIN (PHASE 5E) -->
+        <div class="governance-chain" id="governanceChain" style="display:none;">
+          <span class="gov-step" id="govStepProposed">PROPOSED <small>(AI)</small></span>
+          <span class="gov-arrow" id="govArrow1">→</span>
+          <span class="gov-step" id="govStepDecision">APPROVAL <small>(HUMAN)</small></span>
+          <span class="gov-arrow" id="govArrow2">→</span>
+          <span class="gov-step" id="govStepExecuted">EXECUTE <small>(SYSTEM)</small></span>
+        </div>
+
         <div class="approval-status" id="approvalStatusDisplay">
-          <span class="dotp"></span><span id="approvalStatusText">WAITING FOR HUMAN APPROVAL</span>
+          <span class="dotp" id="approvalStatusDot"></span><span id="approvalStatusText">NO PENDING PROPOSALS YET</span>
         </div>
-        <div class="approval-actions" style="margin-top:18px;">
+
+        <!-- APPROVAL / REJECTION OUTCOME LIST (PHASE 5E) -->
+        <div class="approval-outcome-list" id="approvalOutcomeList" style="display:none;"></div>
+
+        <div class="approval-actions" id="approvalActionsContainer" style="margin-top:18px; display:none;">
           <button class="btn btn-sm btn-review" id="btnReviewProposal">REVIEW</button>
           <button class="btn btn-sm btn-approve" id="btnApproveProposal">APPROVE</button>
           <button class="btn btn-sm btn-reject" id="btnRejectProposal">REJECT</button>
@@ -164,11 +185,11 @@
     <div class="modal-body">
       <div class="modal-kv">
         <div class="k">Proposal ID:</div>
-        <div class="v" id="modalProposalId">proposal-179037-90</div>
+        <div class="v" id="modalProposalId">—</div>
         <div class="k">Target Ticket:</div>
-        <div class="v" id="modalProposalTicket">#90</div>
+        <div class="v" id="modalProposalTicket">—</div>
         <div class="k">Proposed Action:</div>
-        <div class="v" id="modalProposalAction">Update Priority: Low → Medium</div>
+        <div class="v" id="modalProposalAction">—</div>
         <div class="k">Originator:</div>
         <div class="v">AI Investigation Engine (Autonomous)</div>
         <div class="k">Governance Gate:</div>
@@ -177,7 +198,7 @@
       <div style="margin-top:16px;">
         <div style="font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-bottom:6px;">TECHNICAL REASONING:</div>
         <div id="modalProposalReasoning" style="font-size:13px; line-height:1.6; color:#c9c5e0; background:rgba(255,255,255,0.03); padding:12px; border-radius:8px; border:1px solid var(--border);">
-          Ticket #90 reports a severe startup slowdown causing daily productivity loss. Combined with open ticket #81 from the same user, this indicates an escalating endpoint issue warranting Medium priority.
+          Awaiting investigation to generate proposal reasoning.
         </div>
       </div>
       <div class="modal-note">
